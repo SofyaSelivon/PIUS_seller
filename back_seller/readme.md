@@ -14,3 +14,5 @@ uvicorn app.main:app --reload
 yarn install
 
 yarn dev
+
+**запуск через python run.py**
