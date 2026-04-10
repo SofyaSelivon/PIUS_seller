@@ -1,8 +1,11 @@
 import uuid
-from sqlalchemy import Column, String, DateTime, ForeignKey, Index
+
+from sqlalchemy import Column, DateTime, ForeignKey, Index, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
+
 from app.database.base import Base
+
 
 class Market(Base):
 

@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database.session import get_db
 from app.controllers.market_controller import (
-    get_my_market,
-    update_market,
     create_market,
-    market_exists
+    get_my_market,
+    market_exists,
+    update_market,
 )
-from app.schemas.market_schema import MarketUpdate, MarketCreate
+from app.database.session import get_db
+from app.schemas.market_schema import MarketCreate, MarketUpdate
 from app.security.jwt_dependency import get_current_user
 
 router = APIRouter(prefix="/api/markets", tags=["markets"])

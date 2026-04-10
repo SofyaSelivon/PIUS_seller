@@ -1,6 +1,9 @@
-import pytest
 import uuid
+
+import pytest
+
 from app.controllers.market_controller import get_my_market
+
 
 @pytest.mark.asyncio
 async def test_market_controller_empty(test_db):

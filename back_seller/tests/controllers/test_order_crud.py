@@ -1,6 +1,9 @@
-import pytest
 import uuid
+
+import pytest
+
 from app.crud.order import get_orders_with_stats
+
 
 @pytest.mark.asyncio
 async def test_order_crud_empty(test_db):

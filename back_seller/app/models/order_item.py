@@ -1,7 +1,10 @@
 import uuid
+
 from sqlalchemy import Column, ForeignKey, Integer, Numeric
 from sqlalchemy.dialects.postgresql import UUID
+
 from app.database.base import Base
+
 
 class OrderItem(Base):
     __tablename__ = "order_items"

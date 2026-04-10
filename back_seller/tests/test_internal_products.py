@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.mark.asyncio
 async def test_internal_products_info_empty(client):
     resp = await client.post(

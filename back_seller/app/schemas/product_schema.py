@@ -1,7 +1,9 @@
-from pydantic import BaseModel
-from uuid import UUID
 from decimal import Decimal
 from typing import Optional
+from uuid import UUID
+
+from pydantic import BaseModel
+
 from app.enums.product_category import ProductCategory
 
 

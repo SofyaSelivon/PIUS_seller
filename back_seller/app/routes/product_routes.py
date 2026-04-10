@@ -1,11 +1,22 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 
-from app.controllers.product_controller import *
-from app.schemas.product_schema import *
-from app.security.jwt_dependency import get_current_user
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.controllers.product_controller import (
+    get_my_products,
+    create_product,
+    get_product,
+    update_product,
+    delete_product,
+)
 from app.database.session import get_db
+from app.schemas.product_schema import ( 
+    ProductUpdate, 
+    ProductCategory, 
+    ProductCreate
+)
+from app.security.jwt_dependency import get_current_user
 
 router = APIRouter(prefix="/api/products", tags=["products"])
 

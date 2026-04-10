@@ -1,9 +1,22 @@
 import uuid
-from sqlalchemy import Column, String, Integer, Numeric, DateTime, ForeignKey, Index, CheckConstraint, Enum
+
+from sqlalchemy import (
+    CheckConstraint,
+    Column,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    Integer,
+    Numeric,
+    String,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
+
 from app.database.base import Base
 from app.enums.product_category import ProductCategory
+
 
 class Product(Base):
 

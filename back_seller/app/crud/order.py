@@ -1,5 +1,6 @@
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+
 from app.models.order import Order, OrderStatus
 from app.models.order_item import OrderItem
 from app.models.user import User

@@ -1,4 +1,3 @@
-import pytest
 
 async def test_jwt_ok(client, seller_token):
     response = await client.get(

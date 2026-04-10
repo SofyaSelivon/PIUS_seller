@@ -1,6 +1,6 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
 from fastapi import HTTPException
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.market import Market
 from app.models.product import Product
@@ -97,8 +97,6 @@ async def create_product(db: AsyncSession, user_id, data):
 
 
 async def get_product(db: AsyncSession, product_id, user_id):
-
-    # ❗ УБРАЛИ UUID(str(...)) — это ломало DELETE
     result = await db.execute(
         select(Market).where(Market.userId == user_id)
     )

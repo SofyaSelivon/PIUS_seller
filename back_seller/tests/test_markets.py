@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.mark.asyncio
 async def test_get_my_market_empty(client, seller_token):
     resp = await client.get(

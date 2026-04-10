@@ -1,6 +1,9 @@
-import pytest
 import uuid
+
+import pytest
+
 from app.controllers.product_controller import get_my_products
+
 
 @pytest.mark.asyncio
 async def test_product_controller_empty(test_db):

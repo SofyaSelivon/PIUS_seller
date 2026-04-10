@@ -1,7 +1,8 @@
+from uuid import UUID
+
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer
 from jose import jwt
-from uuid import UUID
 
 security = HTTPBearer()
 

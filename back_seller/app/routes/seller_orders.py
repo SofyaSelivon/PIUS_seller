@@ -1,20 +1,17 @@
+from datetime import datetime, timedelta
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 
-from app.database.session import get_db
 from app.crud import order as crud_order
-from app.schemas.order import PaginatedOrdersOut, OrderStatusUpdate, SuccessResponse
-from app.security.jwt_dependency import get_current_user
-
-from app.models.order import Order, OrderStatus
+from app.database.session import get_db
 from app.models.market import Market
+from app.models.order import Order, OrderStatus
 from app.models.order_item import OrderItem
-
-from sqlalchemy import func
-from datetime import datetime, timedelta
+from app.schemas.order import OrderStatusUpdate, PaginatedOrdersOut, SuccessResponse
+from app.security.jwt_dependency import get_current_user
 
 router = APIRouter(prefix="/api/seller/orders", tags=["seller"])
 

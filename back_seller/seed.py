@@ -1,20 +1,19 @@
-import uuid
 import asyncio
+import uuid
 from decimal import Decimal
+
 from jose import jwt
 from sqlalchemy import delete
 
-from app.database.session import engine, AsyncSessionLocal
 from app.database.base import Base
-
-from app.models.user import User
+from app.database.session import AsyncSessionLocal, engine
+from app.enums.product_category import ProductCategory
 from app.models.market import Market
-from app.models.product import Product
 from app.models.order import Order, OrderStatus
 from app.models.order_item import OrderItem
-from app.enums.product_category import ProductCategory
-
-from app.security.jwt_dependency import SECRET_KEY, ALGORITHM
+from app.models.product import Product
+from app.models.user import User
+from app.security.jwt_dependency import ALGORITHM, SECRET_KEY
 
 
 async def seed():
@@ -136,8 +135,18 @@ async def seed():
         await db.refresh(order1)
 
         items = [
-            OrderItem(orderId=order1.id, productId=products[0].id, quantity=1, price=products[0].price),
-            OrderItem(orderId=order1.id, productId=products[1].id, quantity=1, price=products[1].price),
+            OrderItem(
+                orderId=order1.id, 
+                productId=products[0].id, 
+                quantity=1, 
+                price=products[0].price
+                ),
+            OrderItem(
+                orderId=order1.id, 
+                productId=products[1].id, 
+                quantity=1, 
+                price=products[1].price
+                ),
         ]
 
         db.add_all(items)

@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
-
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.session import get_db
 from app.models.product import Product

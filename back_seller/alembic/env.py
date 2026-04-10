@@ -1,7 +1,6 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
@@ -19,11 +18,6 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from app.database.base import Base
-from app.models.market import Market
-from app.models.product import Product
-from app.models.order import Order
-from app.models.order_item import OrderItem
-from app.models.user import User
 
 target_metadata = Base.metadata
 # other values from the config, defined by the needs of env.py,

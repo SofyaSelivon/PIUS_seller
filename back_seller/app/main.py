@@ -1,16 +1,14 @@
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+import app.models
+from app.routes.internal_product_routes import router as internal_products_router
 from app.routes.market_routes import router as market_router
 from app.routes.product_routes import router as product_router
 from app.routes.seller_orders import router as orders_router
-from app.routes.internal_product_routes import router as internal_products_router
-
-from app.schemas.response import ApiResponse, ApiError
-
-import app.models
+from app.schemas.response import ApiError, ApiResponse
 
 app = FastAPI(title="Seller Backend Unified")
 

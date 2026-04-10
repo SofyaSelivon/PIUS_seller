@@ -1,10 +1,13 @@
 import uuid
 from enum import Enum as PyEnum
-from sqlalchemy import Column, String, ForeignKey, Numeric, DateTime
+
+from sqlalchemy import Column, DateTime, ForeignKey, Numeric, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 from sqlalchemy.types import Enum as SQLEnum
+
 from app.database.base import Base
+
 
 class OrderStatus(PyEnum):
     pending = "pending"

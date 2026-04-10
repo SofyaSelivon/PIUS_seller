@@ -1,9 +1,11 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from fastapi import HTTPException
 import uuid
 
+from fastapi import HTTPException
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.models.market import Market
+
 
 async def create_market(db: AsyncSession, user_id: str, data):
     market = Market(

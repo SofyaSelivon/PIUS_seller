@@ -1,18 +1,21 @@
 import os
 import sys
+
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-import pytest
 import asyncio
 import uuid
+
+import pytest
 from httpx import AsyncClient
 from jose import jwt
-
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy import Enum as SAEnum
+from sqlalchemy import String
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import Enum as SAEnum, String
 
 import app.models as models_module
+
 
 def patch_enum_classes():
     for name in dir(models_module):
@@ -25,11 +28,10 @@ def patch_enum_classes():
 patch_enum_classes()
 
 import app.database.session as session_module
-from app.main import app
 from app.database.base import Base
 from app.database.session import get_db
-from app.security.jwt_dependency import SECRET_KEY, ALGORITHM
-
+from app.main import app
+from app.security.jwt_dependency import ALGORITHM, SECRET_KEY
 
 TEST_DB = "sqlite+aiosqlite://"
 
