@@ -18,7 +18,7 @@ from app.security.jwt_dependency import ALGORITHM, SECRET_KEY
 
 async def seed():
 
-    print("Creating tables (if not exist)...")
+    print("Creating tables (if not exist)")
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -34,7 +34,7 @@ async def seed():
         await db.execute(delete(User))
         await db.commit()
 
-        print("Creating users...")
+        print("Creating users")
 
         seller_id = uuid.uuid4()
         buyer_id = uuid.uuid4()
@@ -82,7 +82,7 @@ async def seed():
 
         print("Market created")
 
-        print("Creating products...")
+        print("Creating products")
 
         products = [
             Product(
@@ -119,7 +119,7 @@ async def seed():
 
         print("Products created")
 
-        print("Creating example orders...")
+        print("Creating example orders")
 
         order1 = Order(
             marketId=market.marketId,
@@ -154,15 +154,17 @@ async def seed():
 
         print("Orders created")
 
-        print("\nGenerating JWT token for seller...")
+        print("\nGenerating JWT token for seller")
 
-        payload = {"userId": str(seller_id), "isSeller": True}
+        payload = {
+            "sub": str(seller_id),
+            "isSeller": True
+        }
         token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
         print(" SELLER JWT TOKEN:")
         print(" Bearer", token)
         print("Seller userId:", seller_id)
-        print("=========================================")
 
 if __name__ == "__main__":
     asyncio.run(seed())

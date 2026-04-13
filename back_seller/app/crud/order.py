@@ -98,27 +98,27 @@ async def get_orders_with_stats(
 
         orders.append({
             "id": order.id,
-            "order_number": order.orderNumber,
+            "orderNumber": order.orderNumber,
             "customer": {
                 "id": uid,
-                "full_name": full_name,
+                "fullName": full_name,
                 "telegram": telegram
             },
-            "delivery_address": order.deliveryAddress,
-            "total_amount": float(order.totalAmount),
-            "items_count": items_count,
+            "deliveryAddress": order.deliveryAddress,
+            "totalAmount": float(order.totalAmount),
+            "itemsCount": items_count,
             "status": order.status,
-            "created_at": order.createdAt
+            "createdAt": order.createdAt
         })
 
     return {
         "orders": orders,
         "statistics": {
-            "total_orders": total_orders,
-            "total_revenue": float(total_revenue),
-            "completed_orders": completed_orders,
-            "processing_orders": processing_orders,
-            "pending_orders": pending_orders
+            "totalOrders": total_orders,
+            "totalRevenue": float(total_revenue),
+            "completedOrders": completed_orders,
+            "processingOrders": processing_orders,
+            "pendingOrders": pending_orders
         },
         "pagination": {
             "total": total_orders

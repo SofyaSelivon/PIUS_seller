@@ -2,6 +2,8 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, func
+from app.models.product import Product
 
 from app.controllers.product_controller import (
     get_my_products,
@@ -17,8 +19,37 @@ from app.schemas.product_schema import (
     ProductCreate
 )
 from app.security.jwt_dependency import get_current_user
+from pydantic import BaseModel
+from typing import List
 
 router = APIRouter(prefix="/api/products", tags=["products"])
+class ProductsByIdsRequest(BaseModel):
+    productIds: List[UUID]
+
+
+@router.post("/by-ids")
+async def get_products_by_ids(
+    data: ProductsByIdsRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    query = select(Product).where(Product.id.in_(data.productIds))
+    result = await db.execute(query)
+    products = result.scalars().all()
+
+    return [
+        {
+            "id": str(p.id),
+            "name": p.name,
+            "description": p.description,
+            "category": p.category,
+            "price": float(p.price),
+            "img": p.img,
+            "available": p.available,
+            "marketId": str(p.marketId),
+        }
+        for p in products
+    ]
+
 
 
 @router.get("/my")
@@ -46,6 +77,71 @@ async def my_products(
         available=available
     )
 
+@router.get("/")
+async def get_all_products(
+    page: int = 1,
+    limit: int = 12,
+    search: str | None = None,
+    category: ProductCategory | None = None,
+    minPrice: float | None = None,
+    maxPrice: float | None = None,
+    available: bool | None = None,
+    db: AsyncSession = Depends(get_db),
+):
+    
+    query = select(Product)
+
+    if search:
+        query = query.where(Product.name.ilike(f"%{search}%"))
+
+    if category:
+        query = query.where(Product.category == category)
+
+    if minPrice is not None:
+        query = query.where(Product.price >= minPrice)
+
+    if maxPrice is not None:
+        query = query.where(Product.price <= maxPrice)
+
+    if available is True:
+        query = query.where(Product.available > 0)
+
+    if available is False:
+        query = query.where(Product.available == 0)
+
+    count_query = select(func.count()).select_from(query.subquery())
+    total_items = (await db.execute(count_query)).scalar()
+
+    offset = (page - 1) * limit
+    result = await db.execute(query.offset(offset).limit(limit))
+    products = result.scalars().all()
+
+    total_pages = (
+        (total_items + limit - 1) // limit if total_items else 1
+    )
+
+    return {
+        "items": [
+            {
+                "id": str(p.id),
+                "name": p.name,
+                "description": p.description,
+                "category": p.category,
+                "price": float(p.price),
+                "img": p.img,
+                "available": p.available,
+                "createdAt": p.createdAt,
+                "marketId": str(p.marketId)
+            }
+            for p in products
+        ],
+        "pagination": {
+            "page": page,
+            "limit": limit,
+            "totalItems": total_items,
+            "totalPages": total_pages,
+        },
+    }
 
 @router.post("/")
 async def create(

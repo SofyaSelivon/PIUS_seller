@@ -1,5 +1,8 @@
 from uuid import UUID
+import uuid
 
+from app.models.order import Order, OrderStatus
+from app.models.order_item import OrderItem
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -7,6 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.session import get_db
 from app.models.product import Product
+from app.models.user import User
+
 
 router = APIRouter(prefix="/api/internal/products", tags=["internal-products"])
 
@@ -72,6 +77,60 @@ async def reserve_products(body: ReserveRequest, db: AsyncSession = Depends(get_
             .where(Product.id == item.productId)
             .values(available=new_amount)
         )
+
+    await db.commit()
+
+    return {"success": True}
+
+class CreateOrderInternal(BaseModel):
+    marketId: UUID
+    userId: UUID
+    deliveryAddress: str
+    totalAmount: float
+    items: list[dict]
+
+
+@router.post("/orders")
+async def create_order_internal(
+    data: CreateOrderInternal,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(User).where(User.userId == data.userId)
+    )
+    user = result.scalar_one_or_none()
+
+    if user is None:
+        user = User(
+            userId=data.userId,
+            login=f"user_{data.userId}",
+            passwordHash="stub",
+            firstName="stub",
+            lastName="stub",
+            isSeller=False
+        )
+        db.add(user)
+        await db.flush()
+
+    order = Order(
+        marketId=data.marketId,
+        userId=data.userId,
+        orderNumber=str(uuid.uuid4()),
+        deliveryAddress=data.deliveryAddress,
+        totalAmount=data.totalAmount,
+        status=OrderStatus.pending
+    )
+
+    db.add(order)
+    await db.flush()
+
+    for item in data.items:
+        db.add(OrderItem(
+            orderId=order.id,
+            productId=UUID(item["productId"]),
+            quantity=item["quantity"],
+            price=item["price"]
+        ))
 
     await db.commit()
 

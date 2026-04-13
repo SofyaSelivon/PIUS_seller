@@ -10,9 +10,9 @@ python seed.py
 
 uvicorn app.main:app --reload
 
+**запуск через python run.py**
+
 
 yarn install
 
 yarn dev
-
-**запуск через python run.py**
