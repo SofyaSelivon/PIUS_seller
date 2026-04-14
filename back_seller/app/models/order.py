@@ -16,6 +16,7 @@ class OrderStatus(PyEnum):
     completed = "completed"
     cancelled = "cancelled"
 
+
 class Order(Base):
     __tablename__ = "orders"
 
@@ -24,7 +25,7 @@ class Order(Base):
     userId = Column(UUID(as_uuid=True), ForeignKey("users.userId"), nullable=False)
     orderNumber = Column(String, nullable=False)
     deliveryAddress = Column(String)
-    totalAmount = Column(Numeric(10,2), nullable=False)
+    totalAmount = Column(Numeric(10, 2), nullable=False)
     status = Column(SQLEnum(OrderStatus, name="order_status"), default=OrderStatus.pending)
     deletedAt = Column(DateTime(timezone=True), nullable=True)
     createdAt = Column(DateTime(timezone=True), server_default=func.now())

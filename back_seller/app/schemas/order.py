@@ -44,4 +44,3 @@ class OrderStatusUpdate(BaseModel):
 
 class SuccessResponse(BaseModel):
     success: bool
-

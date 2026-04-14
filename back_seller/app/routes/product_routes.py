@@ -1,28 +1,26 @@
+from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-from app.models.product import Product
 
 from app.controllers.product_controller import (
-    get_my_products,
     create_product,
+    delete_product,
+    get_my_products,
     get_product,
     update_product,
-    delete_product,
 )
 from app.database.session import get_db
-from app.schemas.product_schema import ( 
-    ProductUpdate, 
-    ProductCategory, 
-    ProductCreate
-)
+from app.models.product import Product
+from app.schemas.product_schema import ProductCategory, ProductCreate, ProductUpdate
 from app.security.jwt_dependency import get_current_user
-from pydantic import BaseModel
-from typing import List
 
 router = APIRouter(prefix="/api/products", tags=["products"])
+
+
 class ProductsByIdsRequest(BaseModel):
     productIds: List[UUID]
 
@@ -51,7 +49,6 @@ async def get_products_by_ids(
     ]
 
 
-
 @router.get("/my")
 async def my_products(
     page: int = 1,
@@ -62,7 +59,7 @@ async def my_products(
     maxPrice: float | None = None,
     available: bool | None = None,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user)
+    user=Depends(get_current_user),
 ):
 
     return await get_my_products(
@@ -74,8 +71,9 @@ async def my_products(
         category=category,
         min_price=minPrice,
         max_price=maxPrice,
-        available=available
+        available=available,
     )
+
 
 @router.get("/")
 async def get_all_products(
@@ -88,7 +86,7 @@ async def get_all_products(
     available: bool | None = None,
     db: AsyncSession = Depends(get_db),
 ):
-    
+
     query = select(Product)
 
     if search:
@@ -116,9 +114,7 @@ async def get_all_products(
     result = await db.execute(query.offset(offset).limit(limit))
     products = result.scalars().all()
 
-    total_pages = (
-        (total_items + limit - 1) // limit if total_items else 1
-    )
+    total_pages = (total_items + limit - 1) // limit if total_items else 1
 
     return {
         "items": [
@@ -131,7 +127,7 @@ async def get_all_products(
                 "img": p.img,
                 "available": p.available,
                 "createdAt": p.createdAt,
-                "marketId": str(p.marketId)
+                "marketId": str(p.marketId),
             }
             for p in products
         ],
@@ -143,26 +139,20 @@ async def get_all_products(
         },
     }
 
+
 @router.post("/")
 async def create(
-    data: ProductCreate,
-    db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user)
+    data: ProductCreate, db: AsyncSession = Depends(get_db), user=Depends(get_current_user)
 ):
 
     product = await create_product(db, user["userId"], data)
 
-    return {
-        "success": True,
-        "productId": product.id
-    }
+    return {"success": True, "productId": product.id}
 
 
 @router.get("/{product_id}")
 async def get_product_by_id(
-    product_id: UUID,
-    db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user)
+    product_id: UUID, db: AsyncSession = Depends(get_db), user=Depends(get_current_user)
 ):
 
     product = await get_product(db, product_id, user["userId"])
@@ -175,7 +165,7 @@ async def update_product_by_id(
     product_id: UUID,
     data: ProductUpdate,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user)
+    user=Depends(get_current_user),
 ):
 
     await update_product(db, product_id, user["userId"], data)
@@ -185,9 +175,7 @@ async def update_product_by_id(
 
 @router.delete("/{product_id}")
 async def delete_product_by_id(
-    product_id: UUID,
-    db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user)
+    product_id: UUID, db: AsyncSession = Depends(get_db), user=Depends(get_current_user)
 ):
 
     await delete_product(db, product_id, user["userId"])

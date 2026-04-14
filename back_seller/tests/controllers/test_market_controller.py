@@ -1,8 +1,8 @@
-import uuid
-import pytest
 import logging
+import uuid
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
 from fastapi import HTTPException
 
 from app.controllers import market_controller as mc
@@ -10,15 +10,18 @@ from app.controllers import market_controller as mc
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 log = logging.getLogger(__name__)
 
+
 def mock_scalar_first(value):
     result = MagicMock()
     result.scalars.return_value.first.return_value = value
     return result
 
+
 def mock_scalar_one_or_none(value):
     result = MagicMock()
     result.scalar_one_or_none.return_value = value
     return result
+
 
 def make_market():
     m = MagicMock()
@@ -27,6 +30,7 @@ def make_market():
     m.description = "OldDesc"
     return m
 
+
 def make_db():
     db = AsyncMock()
     db.add = MagicMock()
@@ -34,6 +38,7 @@ def make_db():
     db.refresh = AsyncMock()
     db.execute = AsyncMock()
     return db
+
 
 @pytest.mark.asyncio
 async def test_create_market_success():
@@ -61,6 +66,7 @@ async def test_create_market_success():
 
     log.info("create_market OK")
 
+
 @pytest.mark.asyncio
 async def test_create_market_db_error():
     log.info("\nTEST: create_market_db_error")
@@ -78,6 +84,8 @@ async def test_create_market_db_error():
         await mc.create_market(db, user_id, data)
 
     log.info("exception handled")
+
+
 @pytest.mark.asyncio
 async def test_create_market_generates_uuid():
     log.info("\nTEST: create_market_generates_uuid")
@@ -94,6 +102,7 @@ async def test_create_market_generates_uuid():
     assert len(str(result.marketId)) > 0
 
     log.info("uuid exists")
+
 
 @pytest.mark.asyncio
 async def test_get_my_market_success():
@@ -112,6 +121,7 @@ async def test_get_my_market_success():
 
     log.info("✔ market fetched")
 
+
 @pytest.mark.asyncio
 async def test_get_my_market_not_found():
     log.info("\nTEST: get_my_market_not_found")
@@ -128,6 +138,7 @@ async def test_get_my_market_not_found():
 
     log.info("404 raised")
 
+
 @pytest.mark.asyncio
 async def test_get_my_market_calls_db_once():
     log.info("\nTEST: get_my_market_calls_db_once")
@@ -142,6 +153,7 @@ async def test_get_my_market_calls_db_once():
     assert db.execute.await_count == 1
 
     log.info("db executed once")
+
 
 @pytest.mark.asyncio
 async def test_update_market_success():
@@ -165,7 +177,8 @@ async def test_update_market_success():
     db.commit.assert_awaited_once()
     db.refresh.assert_awaited_once()
 
-    log.info("✔ update success")
+    log.info("update success")
+
 
 @pytest.mark.asyncio
 async def test_update_market_partial():
@@ -187,6 +200,7 @@ async def test_update_market_partial():
     assert market.description == "Only Desc"
 
     log.info("partial update")
+
 
 @pytest.mark.asyncio
 async def test_update_market_no_changes():
@@ -211,6 +225,7 @@ async def test_update_market_no_changes():
 
     log.info("no changes case")
 
+
 @pytest.mark.asyncio
 async def test_update_market_not_found():
     log.info("\nTEST: update_market_not_found")
@@ -230,6 +245,7 @@ async def test_update_market_not_found():
     assert exc.value.status_code == 404
 
     log.info("404 update")
+
 
 @pytest.mark.asyncio
 async def test_market_exists_true():
@@ -262,6 +278,7 @@ async def test_market_exists_false():
     assert res is None
 
     log.info("exists false")
+
 
 @pytest.mark.asyncio
 async def test_market_exists_db_error():

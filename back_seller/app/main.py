@@ -18,15 +18,8 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     return JSONResponse(
         status_code=exc.status_code,
         content=ApiResponse(
-            data=None,
-            errors=[
-                ApiError(
-                    code=str(exc.status_code),
-                    message=exc.detail
-                )
-            ],
-            meta={}
-        ).model_dump()
+            data=None, errors=[ApiError(code=str(exc.status_code), message=exc.detail)], meta={}
+        ).model_dump(),
     )
 
 
@@ -40,11 +33,11 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
                 ApiError(
                     code="VALIDATION_ERROR",
                     message="Validation failed",
-                    meta={"details": exc.errors()}
+                    meta={"details": exc.errors()},
                 )
             ],
-            meta={}
-        ).model_dump()
+            meta={},
+        ).model_dump(),
     )
 
 
@@ -54,14 +47,9 @@ async def generic_exception_handler(request: Request, exc: Exception):
         status_code=500,
         content=ApiResponse(
             data=None,
-            errors=[
-                ApiError(
-                    code="INTERNAL_ERROR",
-                    message="Internal server error"
-                )
-            ],
-            meta={}
-        ).model_dump()
+            errors=[ApiError(code="INTERNAL_ERROR", message="Internal server error")],
+            meta={},
+        ).model_dump(),
     )
 
 

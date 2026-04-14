@@ -7,11 +7,7 @@ from app.models.user import User
 
 
 async def get_orders_with_stats(
-        db: AsyncSession,
-        market_id,
-        status=None,
-        page: int = 1,
-        limit: int = 10
+    db: AsyncSession, market_id, status=None, page: int = 1, limit: int = 10
 ):
 
     query = (
@@ -22,14 +18,11 @@ async def get_orders_with_stats(
             User.firstName,
             User.lastName,
             User.patronymic,
-            User.telegram
+            User.telegram,
         )
         .join(User, User.userId == Order.userId)
         .outerjoin(OrderItem, OrderItem.orderId == Order.id)
-        .where(
-            Order.marketId == market_id,
-            Order.deletedAt.is_(None)
-        )
+        .where(Order.marketId == market_id, Order.deletedAt.is_(None))
         .group_by(Order.id, User.userId)
     )
 
@@ -39,8 +32,7 @@ async def get_orders_with_stats(
     total_orders = (
         await db.execute(
             select(func.count(Order.id)).where(
-                Order.marketId == market_id,
-                Order.deletedAt.is_(None)
+                Order.marketId == market_id, Order.deletedAt.is_(None)
             )
         )
     ).scalar()
@@ -50,7 +42,7 @@ async def get_orders_with_stats(
             select(func.coalesce(func.sum(Order.totalAmount), 0)).where(
                 Order.marketId == market_id,
                 Order.status != OrderStatus.cancelled,
-                Order.deletedAt.is_(None)
+                Order.deletedAt.is_(None),
             )
         )
     ).scalar()
@@ -60,7 +52,7 @@ async def get_orders_with_stats(
             select(func.count(Order.id)).where(
                 Order.marketId == market_id,
                 Order.status == OrderStatus.completed,
-                Order.deletedAt.is_(None)
+                Order.deletedAt.is_(None),
             )
         )
     ).scalar()
@@ -70,7 +62,7 @@ async def get_orders_with_stats(
             select(func.count(Order.id)).where(
                 Order.marketId == market_id,
                 Order.status.in_([OrderStatus.processing, OrderStatus.shipped]),
-                Order.deletedAt.is_(None)
+                Order.deletedAt.is_(None),
             )
         )
     ).scalar()
@@ -80,14 +72,12 @@ async def get_orders_with_stats(
             select(func.count(Order.id)).where(
                 Order.marketId == market_id,
                 Order.status == OrderStatus.pending,
-                Order.deletedAt.is_(None)
+                Order.deletedAt.is_(None),
             )
         )
     ).scalar()
 
-    result = await db.execute(
-        query.offset((page - 1) * limit).limit(limit)
-    )
+    result = await db.execute(query.offset((page - 1) * limit).limit(limit))
 
     rows = result.all()
 
@@ -96,20 +86,18 @@ async def get_orders_with_stats(
     for order, items_count, uid, first, last, pat, telegram in rows:
         full_name = " ".join(filter(None, [first, last, pat]))
 
-        orders.append({
-            "id": order.id,
-            "orderNumber": order.orderNumber,
-            "customer": {
-                "id": uid,
-                "fullName": full_name,
-                "telegram": telegram
-            },
-            "deliveryAddress": order.deliveryAddress,
-            "totalAmount": float(order.totalAmount),
-            "itemsCount": items_count,
-            "status": order.status,
-            "createdAt": order.createdAt
-        })
+        orders.append(
+            {
+                "id": order.id,
+                "orderNumber": order.orderNumber,
+                "customer": {"id": uid, "fullName": full_name, "telegram": telegram},
+                "deliveryAddress": order.deliveryAddress,
+                "totalAmount": float(order.totalAmount),
+                "itemsCount": items_count,
+                "status": order.status,
+                "createdAt": order.createdAt,
+            }
+        )
 
     return {
         "orders": orders,
@@ -118,11 +106,9 @@ async def get_orders_with_stats(
             "totalRevenue": float(total_revenue),
             "completedOrders": completed_orders,
             "processingOrders": processing_orders,
-            "pendingOrders": pending_orders
+            "pendingOrders": pending_orders,
         },
-        "pagination": {
-            "total": total_orders
-        }
+        "pagination": {"total": total_orders},
     }
 
 

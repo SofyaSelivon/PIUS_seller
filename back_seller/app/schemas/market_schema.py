@@ -20,6 +20,7 @@ class MarketUpdate(BaseModel):
     market_name: Optional[str] = None
     description: Optional[str] = None
 
+
 class MarketCreate(BaseModel):
     marketName: str
     description: str | None = None

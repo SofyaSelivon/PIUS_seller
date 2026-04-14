@@ -22,12 +22,10 @@ async def list_orders(
     limit: int = Query(10),
     status: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_user)
+    current_user=Depends(get_current_user),
 ):
     result = await db.execute(
-        select(Market.marketId).where(
-            Market.userId == current_user["userId"]
-        )
+        select(Market.marketId).where(Market.userId == current_user["userId"])
     )
     market_id = result.scalar()
 
@@ -38,48 +36,33 @@ async def list_orders(
                 "totalRevenue": 0,
                 "completedOrders": 0,
                 "processingOrders": 0,
-                "pendingOrders": 0
+                "pendingOrders": 0,
             },
             "orders": [],
-            "pagination": {
-                "page": page,
-                "limit": limit,
-                "totalItems": 0,
-                "totalPages": 0
-            }
+            "pagination": {"page": page, "limit": limit, "totalItems": 0, "totalPages": 0},
         }
 
-    return await crud_order.get_orders_with_stats(
-        db, market_id, status, page, limit
-    )
+    return await crud_order.get_orders_with_stats(db, market_id, status, page, limit)
+
 
 @router.get("/revenue")
-async def get_revenue(
-    db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_user)
-):
+async def get_revenue(db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
     result = await db.execute(
-        select(Market.marketId).where(
-            Market.userId == current_user["userId"]
-        )
+        select(Market.marketId).where(Market.userId == current_user["userId"])
     )
     market_id = result.scalar()
 
     if not market_id:
         return []
 
-    # последние 7 дней
     start_date = datetime.utcnow() - timedelta(days=7)
 
     result = await db.execute(
         select(
-            func.date(Order.createdAt).label("date"),
-            func.sum(Order.totalAmount).label("revenue")
+            func.date(Order.createdAt).label("date"), func.sum(Order.totalAmount).label("revenue")
         )
         .where(
-            Order.marketId == market_id,
-            Order.deletedAt.is_(None),
-            Order.createdAt >= start_date
+            Order.marketId == market_id, Order.deletedAt.is_(None), Order.createdAt >= start_date
         )
         .group_by(func.date(Order.createdAt))
         .order_by(func.date(Order.createdAt))
@@ -87,19 +70,15 @@ async def get_revenue(
 
     rows = result.all()
 
-    return [
-        {"date": str(row.date), "revenue": float(row.revenue or 0)}
-        for row in rows
-    ]
+    return [{"date": str(row.date), "revenue": float(row.revenue or 0)} for row in rows]
+
+
 @router.get("/revenue/total")
 async def get_total_revenue(
-    db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_user)
+    db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)
 ):
     result = await db.execute(
-        select(Market.marketId).where(
-            Market.userId == current_user["userId"]
-        )
+        select(Market.marketId).where(Market.userId == current_user["userId"])
     )
     market_id = result.scalar()
 
@@ -107,25 +86,22 @@ async def get_total_revenue(
         return {"totalRevenue": 0}
 
     result = await db.execute(
-        select(func.sum(Order.totalAmount))
-        .where(
-            Order.marketId == market_id,
-            Order.deletedAt.is_(None)
+        select(func.sum(Order.totalAmount)).where(
+            Order.marketId == market_id, Order.deletedAt.is_(None)
         )
     )
 
     total = result.scalar() or 0
 
-    return {"totalRevenue": float(total)}   
+    return {"totalRevenue": float(total)}
+
+
 @router.get("/completed")
 async def get_completed_orders(
-    db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_user)
+    db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)
 ):
     result = await db.execute(
-        select(Market.marketId).where(
-            Market.userId == current_user["userId"]
-        )
+        select(Market.marketId).where(Market.userId == current_user["userId"])
     )
     market_id = result.scalar()
 
@@ -133,11 +109,10 @@ async def get_completed_orders(
         return {"completedOrders": 0}
 
     result = await db.execute(
-        select(func.count(Order.id))
-        .where(
+        select(func.count(Order.id)).where(
             Order.marketId == market_id,
             Order.status == OrderStatus.completed,
-            Order.deletedAt.is_(None)
+            Order.deletedAt.is_(None),
         )
     )
 
@@ -145,29 +120,26 @@ async def get_completed_orders(
 
     return {"completedOrders": count}
 
+
 @router.patch("/{order_id}/status", response_model=SuccessResponse)
 async def update_status(
     order_id: UUID = Path(...),
     status_update: OrderStatusUpdate = None,
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_user)
+    current_user=Depends(get_current_user),
 ):
 
     if status_update is None:
         raise HTTPException(400, "Status body is required")
 
     result = await db.execute(
-        select(Market.marketId).where(
-            Market.userId == current_user["userId"]
-        )
+        select(Market.marketId).where(Market.userId == current_user["userId"])
     )
     market_id = result.scalar()
 
     result = await db.execute(
         select(Order).where(
-            Order.id == order_id,
-            Order.marketId == market_id,
-            Order.deletedAt.is_(None)
+            Order.id == order_id, Order.marketId == market_id, Order.deletedAt.is_(None)
         )
     )
     order = result.scalar()
@@ -180,7 +152,7 @@ async def update_status(
         OrderStatus.processing: [OrderStatus.shipped, OrderStatus.cancelled],
         OrderStatus.shipped: [OrderStatus.completed],
         OrderStatus.completed: [],
-        OrderStatus.cancelled: []
+        OrderStatus.cancelled: [],
     }
 
     if status_update.status not in allowed_transitions[order.status]:
@@ -195,21 +167,17 @@ async def update_status(
 async def delete_order(
     order_id: UUID = Path(...),
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_user)
+    current_user=Depends(get_current_user),
 ):
 
     result = await db.execute(
-        select(Market.marketId).where(
-            Market.userId == current_user["userId"]
-        )
+        select(Market.marketId).where(Market.userId == current_user["userId"])
     )
     market_id = result.scalar()
 
     result = await db.execute(
         select(Order).where(
-            Order.id == order_id,
-            Order.marketId == market_id,
-            Order.deletedAt.is_(None)
+            Order.id == order_id, Order.marketId == market_id, Order.deletedAt.is_(None)
         )
     )
     order = result.scalar()
@@ -226,20 +194,16 @@ async def delete_order(
 async def get_order_by_id(
     order_id: UUID = Path(...),
     db: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_user)
+    current_user=Depends(get_current_user),
 ):
     result = await db.execute(
-        select(Market.marketId).where(
-            Market.userId == current_user["userId"]
-        )
+        select(Market.marketId).where(Market.userId == current_user["userId"])
     )
     market_id = result.scalar()
 
     result = await db.execute(
         select(Order).where(
-            Order.id == order_id,
-            Order.marketId == market_id,
-            Order.deletedAt.is_(None)
+            Order.id == order_id, Order.marketId == market_id, Order.deletedAt.is_(None)
         )
     )
     order = result.scalar()
@@ -247,9 +211,7 @@ async def get_order_by_id(
     if not order:
         raise HTTPException(404, "Order not found")
 
-    result = await db.execute(
-        select(OrderItem).where(OrderItem.orderId == order.id)
-    )
+    result = await db.execute(select(OrderItem).where(OrderItem.orderId == order.id))
     items = result.scalars().all()
 
     return {
@@ -260,11 +222,7 @@ async def get_order_by_id(
         "status": order.status,
         "createdAt": order.createdAt,
         "items": [
-            {
-                "productId": item.productId,
-                "quantity": item.quantity,
-                "price": float(item.price)
-            }
+            {"productId": item.productId, "quantity": item.quantity, "price": float(item.price)}
             for item in items
-        ]
+        ],
     }

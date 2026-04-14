@@ -24,7 +24,6 @@ async def seed():
         await conn.run_sync(Base.metadata.create_all)
 
     async with AsyncSessionLocal() as db:
-
         print("Cleaning database...")
 
         await db.execute(delete(OrderItem))
@@ -48,7 +47,7 @@ async def seed():
             city="Moscow",
             telegram="@seller",
             telegramChatId="123",
-            isSeller=True
+            isSeller=True,
         )
 
         buyer = User(
@@ -60,7 +59,7 @@ async def seed():
             city="Berlin",
             telegram="@buyer",
             telegramChatId="456",
-            isSeller=False
+            isSeller=False,
         )
 
         db.add_all([seller, buyer])
@@ -71,9 +70,7 @@ async def seed():
         print("Creating seller market...")
 
         market = Market(
-            userId=seller_id,
-            marketName="Tech Store",
-            description="Electronics and gadgets"
+            userId=seller_id, marketName="Tech Store", description="Electronics and gadgets"
         )
 
         db.add(market)
@@ -92,7 +89,7 @@ async def seed():
                 category=ProductCategory.electronics,
                 price=Decimal("999.99"),
                 available=10,
-                img="https://example.com/iphone.jpg"
+                img="https://example.com/iphone.jpg",
             ),
             Product(
                 marketId=market.marketId,
@@ -101,7 +98,7 @@ async def seed():
                 category=ProductCategory.electronics,
                 price=Decimal("2499.99"),
                 available=5,
-                img="https://example.com/macbook.jpg"
+                img="https://example.com/macbook.jpg",
             ),
             Product(
                 marketId=market.marketId,
@@ -110,8 +107,8 @@ async def seed():
                 category=ProductCategory.electronics,
                 price=Decimal("79.99"),
                 available=25,
-                img="https://example.com/mouse.jpg"
-            )
+                img="https://example.com/mouse.jpg",
+            ),
         ]
 
         db.add_all(products)
@@ -136,17 +133,11 @@ async def seed():
 
         items = [
             OrderItem(
-                orderId=order1.id, 
-                productId=products[0].id, 
-                quantity=1, 
-                price=products[0].price
-                ),
+                orderId=order1.id, productId=products[0].id, quantity=1, price=products[0].price
+            ),
             OrderItem(
-                orderId=order1.id, 
-                productId=products[1].id, 
-                quantity=1, 
-                price=products[1].price
-                ),
+                orderId=order1.id, productId=products[1].id, quantity=1, price=products[1].price
+            ),
         ]
 
         db.add_all(items)
@@ -156,15 +147,13 @@ async def seed():
 
         print("\nGenerating JWT token for seller")
 
-        payload = {
-            "sub": str(seller_id),
-            "isSeller": True
-        }
+        payload = {"sub": str(seller_id), "isSeller": True}
         token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
         print(" SELLER JWT TOKEN:")
         print(" Bearer", token)
         print("Seller userId:", seller_id)
+
 
 if __name__ == "__main__":
     asyncio.run(seed())

@@ -7,27 +7,14 @@ from app.models.product import Product
 
 
 async def get_my_products(
-        db: AsyncSession,
-        user_id,
-        page,
-        limit,
-        search,
-        category,
-        min_price,
-        max_price,
-        available
+    db: AsyncSession, user_id, page, limit, search, category, min_price, max_price, available
 ):
 
-    result = await db.execute(
-        select(Market).where(Market.userId == user_id)
-    )
+    result = await db.execute(select(Market).where(Market.userId == user_id))
     market = result.scalars().first()
 
     if not market:
-        return {
-            "items": [],
-            "pagination": {"total": 0}
-        }
+        return {"items": [], "pagination": {"total": 0}}
 
     query = select(Product).where(Product.marketId == market.marketId)
 
@@ -54,25 +41,16 @@ async def get_my_products(
 
     offset = (page - 1) * limit
 
-    result = await db.execute(
-        query.offset(offset).limit(limit)
-    )
+    result = await db.execute(query.offset(offset).limit(limit))
 
     products = result.scalars().all()
 
-    return {
-        "items": products,
-        "pagination": {
-            "total": total_items
-        }
-    }
+    return {"items": products, "pagination": {"total": total_items}}
 
 
 async def create_product(db: AsyncSession, user_id, data):
 
-    result = await db.execute(
-        select(Market).where(Market.userId == user_id)
-    )
+    result = await db.execute(select(Market).where(Market.userId == user_id))
     market = result.scalars().first()
 
     if not market:
@@ -85,7 +63,7 @@ async def create_product(db: AsyncSession, user_id, data):
         category=data.category,
         price=data.price,
         available=data.available,
-        img=data.img
+        img=data.img,
     )
 
     db.add(product)
@@ -97,19 +75,14 @@ async def create_product(db: AsyncSession, user_id, data):
 
 
 async def get_product(db: AsyncSession, product_id, user_id):
-    result = await db.execute(
-        select(Market).where(Market.userId == user_id)
-    )
+    result = await db.execute(select(Market).where(Market.userId == user_id))
     market = result.scalars().first()
 
     if not market:
         raise HTTPException(404, "Market not found")
 
     result = await db.execute(
-        select(Product).where(
-            Product.id == product_id,
-            Product.marketId == market.marketId
-        )
+        select(Product).where(Product.id == product_id, Product.marketId == market.marketId)
     )
 
     product = result.scalars().first()

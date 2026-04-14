@@ -19,7 +19,6 @@ from app.enums.product_category import ProductCategory
 
 
 class Product(Base):
-
     __tablename__ = "products"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -30,11 +29,8 @@ class Product(Base):
 
     description = Column(String)
 
-    category = Column(
-        Enum(ProductCategory, name="productcategory"),
-        nullable=False
-    )
-    price = Column(Numeric(10,2), nullable=False)
+    category = Column(Enum(ProductCategory, name="productcategory"), nullable=False)
+    price = Column(Numeric(10, 2), nullable=False)
 
     img = Column(String)
 

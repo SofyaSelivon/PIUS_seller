@@ -13,4 +13,4 @@ class OrderItem(Base):
     orderId = Column(UUID(as_uuid=True), ForeignKey("orders.id"), nullable=False)
     productId = Column(UUID(as_uuid=True), ForeignKey("products.id"), nullable=False)
     quantity = Column(Integer, nullable=False)
-    price = Column(Numeric(10,2), nullable=False)
+    price = Column(Numeric(10, 2), nullable=False)

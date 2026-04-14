@@ -1,9 +1,10 @@
 from uuid import UUID
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer
-from jose import jwt, JWTError
+from jose import JWTError, jwt
 
-from app.config import SECRET_KEY, ALGORITHM
+from app.config import ALGORITHM, SECRET_KEY
 
 security = HTTPBearer()
 
