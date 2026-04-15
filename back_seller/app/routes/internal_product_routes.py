@@ -118,6 +118,11 @@ async def create_order_internal(data: CreateOrderInternal, db: AsyncSession = De
     await db.flush()
 
     for item in data.items:
+        if "productId" not in item or "quantity" not in item or "price" not in item:
+            raise HTTPException(
+                status_code=400,
+                detail="items must contain productId, quantity, price"
+            )
         db.add(
             OrderItem(
                 orderId=order.id,

@@ -13,7 +13,19 @@ export const marketApi = baseApi.injectEndpoints({
         body,
       }),
     }),
+
+    createMarket: builder.mutation({
+      query: (body) => ({
+        url: "/markets/create",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
-export const { useGetMyMarketQuery, useUpdateMarketMutation } = marketApi;
+export const {
+  useGetMyMarketQuery,
+  useUpdateMarketMutation,
+  useCreateMarketMutation,
+} = marketApi;
