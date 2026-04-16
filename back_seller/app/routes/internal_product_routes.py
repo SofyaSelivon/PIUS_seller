@@ -12,7 +12,7 @@ from app.models.order_item import OrderItem
 from app.models.product import Product
 from app.models.user import User
 
-router = APIRouter(prefix="/api/internal/products", tags=["internal-products"])
+router = APIRouter(prefix="/api/v1/internal/products", tags=["internal-products"])
 
 
 class ProductsInfoRequest(BaseModel):
@@ -49,7 +49,6 @@ async def get_products_info(body: ProductsInfoRequest, db: AsyncSession = Depend
 
 @router.post("/reserve")
 async def reserve_products(body: ReserveRequest, db: AsyncSession = Depends(get_db)):
-
     product_ids = [item.productId for item in body.items]
 
     result = await db.execute(select(Product).where(Product.id.in_(product_ids)))
@@ -120,8 +119,7 @@ async def create_order_internal(data: CreateOrderInternal, db: AsyncSession = De
     for item in data.items:
         if "productId" not in item or "quantity" not in item or "price" not in item:
             raise HTTPException(
-                status_code=400,
-                detail="items must contain productId, quantity, price"
+                status_code=400, detail="items must contain productId, quantity, price"
             )
         db.add(
             OrderItem(

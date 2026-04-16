@@ -13,7 +13,7 @@ from app.models.order_item import OrderItem
 from app.schemas.order import OrderStatusUpdate, PaginatedOrdersOut, SuccessResponse
 from app.security.jwt_dependency import get_current_user
 
-router = APIRouter(prefix="/api/seller/orders", tags=["seller"])
+router = APIRouter(prefix="/api/v1/seller/orders", tags=["seller"])
 
 
 @router.get("", response_model=PaginatedOrdersOut)
@@ -128,7 +128,6 @@ async def update_status(
     db: AsyncSession = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-
     if status_update is None:
         raise HTTPException(400, "Status body is required")
 
@@ -169,7 +168,6 @@ async def delete_order(
     db: AsyncSession = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-
     result = await db.execute(
         select(Market.marketId).where(Market.userId == current_user["userId"])
     )
