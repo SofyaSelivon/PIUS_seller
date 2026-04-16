@@ -16,9 +16,9 @@ repos:
 
   - repo: local
     hooks:
-      - id: pytest-docker
-        name: pytest-in-docker
-        entry: docker-compose exec -T backend pytest
+      - id: pytest-local
+        name: pytest
+        entry: bash -c "pytest -q"
         language: system
         pass_filenames: false
         always_run: true

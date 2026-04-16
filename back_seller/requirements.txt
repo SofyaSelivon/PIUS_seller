@@ -9,3 +9,9 @@ pydantic
 alembic
 asyncpg
 pydantic_settings
+pytest
+pytest-asyncio
+pytest-cov
+asynctest
+httpx
+sqlalchemy[asyncio]
